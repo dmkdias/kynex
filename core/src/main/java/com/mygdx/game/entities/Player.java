@@ -1,62 +1,55 @@
 package com.mygdx.game.entities;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
-import com.mygdx.game.input.PlayerInputHandler;
 
 public class Player extends GameObject {
 
-    PlayerInputHandler input;
-
     float shootCooldown = 0;
+    float speed = 400f;
+    float width = 64;
+    float height = 64;
 
     public Player(Texture texture) {
-
         this.texture = texture;
-
-        x = 400;
-        y = 20;
-
-        input = new PlayerInputHandler();
+        this.x = 400 - width / 2;
+        this.y = 20;
     }
 
     @Override
     public void update(float delta) {
-
-        float newX = input.getPlayerX();
-
-        if (newX != -1) {
-            x = newX;
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            x -= speed * delta;
         }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            x += speed * delta;
+        }
+
+        if (x < 0) x = 0;
+        if (x > 800 - width) x = 800 - width;
 
         shootCooldown -= delta;
     }
 
     public boolean canShoot() {
-
-        return input.canShoot()
-            && shootCooldown <= 0;
+        return Gdx.input.isKeyPressed(Input.Keys.SPACE) && shootCooldown <= 0;
     }
 
     public Bullet shoot(Texture bulletTexture) {
-
         shootCooldown = 0.3f;
-
-        return new Bullet(
-            bulletTexture,
-            x + 24,
-            y + 60
-        );
+        return new Bullet(bulletTexture, x + width / 2 - 8, y + height);
     }
 
     @Override
     public void draw(SpriteBatch batch) {
-        batch.draw(texture, x, y, 64, 64);
+        batch.draw(texture, x, y, width, height);
     }
 
     @Override
     public Rectangle getBounds() {
-        return new Rectangle(x, y, 64, 64);
+        return new Rectangle(x, y, width, height);
     }
 }
